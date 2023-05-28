@@ -5,10 +5,12 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "lint": "eslint .",
+    "lint": "tsc && eslint .",
     "start": "react-native start",
     "test": "jest",
-    "release-android": "cd ./android && ./gradlew assembleRelease"
+    "bundle-android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle",
+    "release-android": "npm run  lint && cd android && ./gradlew assembleRelease",
+    "debug-android": "cd ./android &&  ./gradlew clean && ./gradlew assembleDebug"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.18.1",

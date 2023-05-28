@@ -13,11 +13,7 @@ import {BarcodeFormat} from 'vision-camera-code-scanner';
 function Scanner() {
   const [hasPermission, setHasPermission] = React.useState(false);
   const [color, setColor] = React.useState('white');
-  const [points, setPoints] = useState(undefined);
   const [torch, setTorch] = useState<'on' | 'off'>('off');
-
-  const WINDOW_HEIGHT = Dimensions.get('window').height;
-  const WINDOW_WIDTH = Dimensions.get('window').width;
 
   const navigation = useNavigation<any>();
 
@@ -40,44 +36,13 @@ function Scanner() {
     y: (windowHeight - viewfinderHeight) / 4,
   };
 
-  const aabb = (barcode, frameWidth, frameHeight) => {
-    try {
-      const {cornerPoints} = barcode;
+  // runOnUI(useScanBarcodes)([BarcodeFormat.ALL_FORMATS], {
+  //   checkInverted: true,
+  // });
 
-      const frWidth = Math.min(frameHeight, frameWidth);
-      const frHeight = Math.max(frameHeight, frameWidth);
-
-      const xRatio = frWidth / WINDOW_WIDTH;
-      const yRatio = frHeight / WINDOW_HEIGHT;
-
-      const xArray = cornerPoints.map(corner => parseFloat(corner.x));
-      const yArray = cornerPoints.map(corner => parseFloat(corner.y));
-
-      const left = Math.min(...xArray);
-      const right = Math.max(...xArray);
-      const bottom = Math.max(...yArray);
-      const top = Math.min(...yArray);
-
-      const x = left / xRatio;
-      const y = top / yRatio;
-      const width = (right - left) / xRatio;
-      const height = (bottom - top) / xRatio;
-      setPoints({x, y, width, height});
-      return (
-        cornerPoints.length === 4 &&
-        viewFinderBounds.x <= x &&
-        viewFinderBounds.x + viewFinderBounds.width >= x + width &&
-        viewFinderBounds.y <= y &&
-        viewFinderBounds.y + viewFinderBounds.height >= y + height
-      );
-    } catch (error) {
-      setPoints(undefined);
-      return false;
-    }
-  };
-
-  const [frameProcessor, barcodes, frameWidth, frameHeight] = useScanBarcodes(
+  const [frameProcessor, result] = useScanBarcodes(
     [BarcodeFormat.ALL_FORMATS],
+    viewFinderBounds,
     {
       checkInverted: true,
     },
@@ -121,16 +86,15 @@ function Scanner() {
 
   useEffect(() => {
     if (scanned) return;
-    const collides = aabb(barcodes[0], frameWidth, frameHeight);
 
-    if (collides) {
-      setScanned(prev => (!prev ? barcodes[0].displayValue : prev));
+    if (result) {
+      setScanned(prev => (!prev ? result.displayValue : prev));
       setColor('lime');
     } else {
       setColor('white');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [barcodes]);
+  }, [result]);
 
   if (device && hasPermission) {
     return (
@@ -140,6 +104,8 @@ function Scanner() {
           device={device}
           isActive={focused}
           frameProcessor={frameProcessor}
+          videoStabilizationMode="auto"
+          preset="high"
           frameProcessorFps={5}
           torch={(focused && torch) || 'off'}
         />

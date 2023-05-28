@@ -27,11 +27,11 @@ function Result() {
       return;
     }
     const numeric = isNumeric(scanned);
+    console.log(scanned);
 
     const find = data.find(d => {
-      console.log(Number(d[column]), Number(scanned));
       return numeric
-        ? Number(d[column]) == Number(scanned)
+        ? Number(d[column]) === Number(scanned)
         : d[column].toString().toLowerCase() === scanned.toLowerCase();
     });
 
@@ -54,7 +54,7 @@ function Result() {
             style={styles.img}
             source={require('../../assets/notfound.webp')}
           />
-          <Text style={styles.errTitle}>No Data Found!</Text>
+          <Text style={styles.errTitle}>{scanned}</Text>
           <Text style={styles.text}>
             Code you scanned does'nt exist in the spreadsheet
           </Text>
@@ -152,7 +152,7 @@ function Result() {
         />
         <Text
           style={[styles.errTitle, {alignSelf: 'center', marginBottom: 50}]}>
-          Found Something!
+          {scanned}
         </Text>
         <View>
           {Object.keys(result).map((key, i) => (

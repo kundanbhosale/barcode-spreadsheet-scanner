@@ -15,6 +15,7 @@ function Home() {
           style={styles.img}
           source={require('../../assets/spreadsheets.webp')}
         />
+        <Text style={{color: 'black'}}>V1</Text>
         <Text style={styles.heading}>Spreadsheet Barcode Scanner</Text>
         <Text style={styles.tagline}>
           Unlock the Power of Scanning: Retrieve Data from your Spreadsheets by
